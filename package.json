@@ -1,0 +1,23 @@
+{
+  "name": "node_stude",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "nconf": "^0.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/park-se-min/node_study.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/park-se-min/node_study/issues"
+  },
+  "homepage": "https://github.com/park-se-min/node_study#readme"
+}
