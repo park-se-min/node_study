@@ -23,7 +23,17 @@ function add2(a, b, callback) {
 		c++;
 		return c + ' : ' + a +' + '+ b +' = '+ r;
 	}
-	return history;
+
+	var c = 1; // ??
+	var history2 = function() {
+		c--;
+		return c + ' : ' + a +' + '+ b +' = '+ r;
+	}
+
+	if (a == "1")
+		return history;
+	else
+		return history2;
 }
 
 var add2_history = add2(1, 5, function(r){
@@ -31,7 +41,17 @@ var add2_history = add2(1, 5, function(r){
 	console.log('더하기 %d', r);
 });
 
+var add2_history2 = add2(2, 5, function(r){
+	console.log('콜백');
+	console.log('더하기 %d', r);
+});
+
+
 console.log('결과 '+ add2_history());
 console.log('결과 '+ add2_history());
 console.log('결과 '+ add2_history());
+console.log('결과 '+ add2_history());
+console.log('결과 '+ add2_history2());
+console.log('결과 '+ add2_history());
+console.log('결과 '+ add2_history2());
 console.log('결과 '+ add2_history());
