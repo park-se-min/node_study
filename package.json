@@ -4,6 +4,7 @@
   "description": "ㅎㅅㅎ",
   "main": "index.js",
   "dependencies": {
+    "express": "^4.17.1",
     "nconf": "^0.10.0"
   },
   "devDependencies": {},
