@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+
+<body>
+
+	<input type="checkbox" id="chk">
+
+	<p onclick="c()">선택하자</p>
+	<p onclick="r()">해제</p>
+	<p onclick="b()">현상태와 반대로</p>
+
+
+	<script>
+		function c() {
+			document.getElementById('chk').checked = true;
+		}
+
+		function r() {
+			document.getElementById('chk').checked = false;
+		}
+
+		function b() {
+			if (document.getElementById('chk').checked)
+				document.getElementById('chk').checked = false;
+			else
+				document.getElementById('chk').checked = true;
+		}
+	</script>
+</body>
+
+</html>
