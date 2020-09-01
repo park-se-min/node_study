@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+
+<body>
+
+	<div><input type="button" id="b0" value="시작"></div>
+	<div><input type="button" id="b1" value="1"></div>
+	<div><input type="button" id="b2" value="2"></div>
+	<div><input type="button" id="b3" value="3"></div>
+
+	<script>
+		window.onload = function () {
+			var obj_b0 = document.getElementById('b0');
+			obj_b0.addEventListener('click', function () {
+				var obj_b1 = document.getElementById('b1');
+				obj_b1.style.backgroundColor = '#ff0000';
+
+				obj_b1.addEventListener('click', function () {
+					var obj_b2 = document.getElementById('b2');
+					obj_b2.style.backgroundColor = '#ffff00';
+
+					obj_b2.addEventListener('click', function () {
+						var obj_b3 = document.getElementById('b3');
+						obj_b3.style.backgroundColor = '#0000cc';
+						obj_b3.addEventListener('click', function () {
+							alert('순차적 진행');
+						});
+					});
+
+				});
+
+			})
+
+		}
+	</script>
+
+</body>
+
+</html>

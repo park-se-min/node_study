@@ -10,30 +10,40 @@ var static = require('serve-static');
 // 익스프레스 객체
 var app = express();
 
+// 라우터 객체 참조
+var router = express.Router();
+
 // 기본설정
 app.set('port', process.env.PORT || 3000);
 
 // body-parser 사용 파싱
-app.use(bodyParser.urlencoded({ extended : false }));
+app.use(bodyParser.urlencoded({
+	extended: false
+}));
 
 app.use(bodyParser.json());
 
-app.use('/public', static(path.join(__dirname, '../public')));
+app.use('/', static(path.join(__dirname, '../public')));
 
-
-// 1
-app.use(function (req, res, next) {
+// 라우터
+// router.route('/process/login').get();
+router.route('/process/login').post(function (req, res) {
 	console.log('');
-	console.log('1');
+	console.log('post');
 
 	var p_id = req.body.id || req.query.id;
 	var p_pw = req.body.password || req.query.password;
 
-	res.writeHead(200, {'Content-Type':'text/html; charser=utf8'});
-	res.write('<br>id'+ p_id);
-	res.write('<br>pw'+ p_pw);
+	res.writeHead(200, {
+		'Content-Type': 'text/html; charser=utf8'
+	});
+	res.write('<br>id' + p_id);
+	res.write('<br>pw' + p_pw);
 	res.end();
-})
+});
+
+app.use('/', router);
+
 
 
 http.createServer(app).listen(app.get('port'), function () {
