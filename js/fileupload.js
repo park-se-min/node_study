@@ -75,7 +75,7 @@ var router = express.Router();
 
 
 
-router.route('/process/photo').post(upload.array('photo', 1), function (req, res) {
+router.route('/process/photo').post(upload.array('photo', 10), function (req, res) {
 	console.log('');
 	console.log('/process/photo');
 
@@ -83,7 +83,7 @@ router.route('/process/photo').post(upload.array('photo', 1), function (req, res
 		var files = req.files;
 
 		console.dir('SSSSSSSSSSSSSSSSSSSSSSSS');
-		console.dir(req.files[0]);
+		console.dir(req.files);
 		console.dir('EEEEEEEEEEEEEEEEEEEEEEEE');
 
 		var originalname = '',
