@@ -1,0 +1,1 @@
+mongod --dbpath C:\xampp\htdocs\node_stude\mongo\local
