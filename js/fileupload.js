@@ -111,7 +111,7 @@ router.route('/process/photo').post(upload.array('photo', 10), function (req, re
 
 
 		res.writeHead(200, {
-			'Content-Type': 'text/html; charser=utf8'
+			'Content-Type': 'text/html; charset=utf8'
 		});
 		res.write('<br>originalname : ' + originalname);
 		res.write('<br>filename : ' + filename);

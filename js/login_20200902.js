@@ -38,7 +38,7 @@ router.route('/process/login').post(function (req, res) {
 	var p_pw = req.body.password || req.query.password;
 
 	res.writeHead(200, {
-		'Content-Type': 'text/html; charser=utf8'
+		'Content-Type': 'text/html; charset=utf8'
 	});
 	res.write('<br>id' + p_id);
 	res.write('<br>pw' + p_pw);
@@ -57,7 +57,7 @@ router.route('/process/login/:name/:asdf').post(function (req, res) {
 	var p_pw = req.body.password || req.query.password;
 
 	res.writeHead(200, {
-		'Content-Type': 'text/html; charser=utf8'
+		'Content-Type': 'text/html; charset=utf8'
 	});
 	res.write('<br>id : ' + p_id);
 	res.write('<br>pw : ' + p_pw);

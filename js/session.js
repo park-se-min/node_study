@@ -67,7 +67,7 @@ router.route('/process/login').post(function (req, res) {
 		};
 
 		res.writeHead(200, {
-			'Content-Type': 'text/html; charser=utf8'
+			'Content-Type': 'text/html; charset=utf8'
 		});
 		res.write('<br>paramId : ' + p_id);
 		res.write('<br>product : <a href="/product.html">gogo</a>');
