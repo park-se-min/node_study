@@ -17,7 +17,15 @@ var expressSession = require('express-session');
 
 // 몽고디비 모듈
 var MongoClient = require('mongodb').MongoClient;
+
+// 몽고디비 모듈
+var mongoose = require('mongoose');
+
+// DB 변수들
 var database;
+var UserSchema;
+var UserModel;
+
 
 // 익스프레스 객체생성
 var app = express();
@@ -51,21 +59,57 @@ var router = express.Router();
 
 // DB 커넥트
 function connectDB() {
+	// var databaseUrl = 'mongodb://localhost:27017/local';
 	var databaseUrl = 'mongodb://localhost:27017';
 
-	// MongoClient.connect(databaseUrl, function (err, db) {
-	useUnifiedTopology_str = {
+	// DB 연결
+	console.log('연결중');
+
+	mongoose_connect_options = {
+		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}
-	MongoClient.connect(databaseUrl, useUnifiedTopology_str, function (err, db) {
-		if (err) throw err;
 
+	mongoose.Promise = global.Promise;
+	mongoose.connect(databaseUrl, mongoose_connect_options);
+	database = mongoose.connection;
+
+	database.on('error', console.error.bind(console, 'mongoose err'));
+	database.on('open', function () {
 		console.log('DB 연결됨');
 
-		database = db.db('local');
-	})
+		UserSchema = mongoose.Schema({
+			id: String,
+			name: String,
+			password: String
+		});
+		console.log('schema');
+
+		UserModel = mongoose.model('users', UserSchema);
+		console.log('model');
+	});
+
+	database.on('disconnected', function () {
+		console.log('DB 연결끊어짐');
+		setInterval(connectDB, 5000);
+	});
+
+	// // MongoClient.connect(databaseUrl, function (err, db) {
+	// useUnifiedTopology_str = {
+	// 	useUnifiedTopology: true
+	// }
+	// MongoClient.connect(databaseUrl, useUnifiedTopology_str, function (err, db) {
+	// 	if (err) throw err;
+
+	// 	console.log('DB 연결됨');
+
+	// 	database = db.db('local');
+	// })
 }
 
+
+
+/*
 // 사용자 인증함수
 var authUser = function (database, id, password, callback) {
 	console.log('authUser');
@@ -91,7 +135,43 @@ var authUser = function (database, id, password, callback) {
 		}
 	})
 }
+ */
+var authUser = function (database, id, password, callback) {
+	console.log('authUser');
 
+	// var users = database.collection('users');
+	var users_data = {
+		'id': id,
+		"password": password
+	}
+
+	UserModel.find(users_data, function(e, r){
+		console.log(r);
+	})
+
+	// console.log(users_data);
+
+	UserModel.find(users_data, function (err, results) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+
+		console.log('---------');
+		console.dir(results);
+		console.log('---------');
+
+		if (results.length > 0) {
+			console.log('아이디 %s, 비밀번호 %s', id, password);
+			callback(null, results);
+		} else {
+			console.log('XXXXXXXXX');
+			callback(null, null);
+		}
+	})
+}
+
+// 사용자 추가
 var addUser = function (database, id, password, name, callback) {
 	console.log('addUser');
 
@@ -109,7 +189,7 @@ var addUser = function (database, id, password, name, callback) {
 		}
 
 		if (result.insertedCount > 0) {
-			console.log('레코드 추가됨'+ result.insertedCount);
+			console.log('레코드 추가됨' + result.insertedCount);
 		} else {
 			console.log('XXXXXXXXX');
 		}
@@ -124,6 +204,7 @@ router.route('/process/login').post(function (req, res) {
 	console.log('/process/login');
 });
 
+// 로그인
 app.post('/process/login', function (req, res) {
 	console.log('/process/login');
 
@@ -164,6 +245,7 @@ app.post('/process/login', function (req, res) {
 })
 
 
+// 회원가입
 router.route('/process/adduser').post(function (req, res) {
 	console.log('/process/adduser');
 
