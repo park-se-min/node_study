@@ -35,6 +35,9 @@ var pool = mysql.createPool({
 
 // crypto 모듈
 var crypto = require('crypto');
+const {
+	table
+} = require('console');
 
 // DB 변수들
 var database;
@@ -235,37 +238,58 @@ function findAll() {
 	})
 }
 
-var addUser = function (database, p_arr, callback) {
+/*---------------------------------------------------------------------------------*/
+/*------------------------------------- function -------------------------------------------- */
+/*---------------------------------------------------------------------------------*/
+var addUser = function (p_arr, callback) {
 	console.log('addUser 호출');
 
 	var {
 		id,
-		password,
-		name
+		name,
+		age,
+		password
 	} = p_arr;
 
 	console.log(p_arr);
 
 	var p_param = {
 		'id': id,
-		'password': password,
-		'name': name
+		'name': name,
+		'age': age,
+		'password': password
 	}
 
-	var user = new UserModel(p_param);
-
-	user.save(function (err) {
+	pool.getConnection(function (err, conn) {
 		if (err) {
+			if (conn) {
+				conn.release();
+			}
+
 			callback(err, null);
 			return;
 		}
+		console.log('데이터베이스 스레드 아이디 : ' + conn.threadId);
 
-		console.log('사용자 추가됨');
-		callback(null, user);
-	})
+		var exec = conn.query('insert into users set ?', p_param, function (err, result) {
+			conn.release();
+			console.log('sql:' + exec.sql);
+
+			if (err) {
+				console.log('오류');
+				console.dir(err);
+
+				callback(err, null);
+
+				return;
+			}
+
+			callback(null, result)
+		})
+	});
 }
 
-var authUser = function (database, p_arr, callback) {
+var authUser = function (p_arr, callback) {
 	console.log('authUser 호출');
 
 	var {
@@ -273,65 +297,82 @@ var authUser = function (database, p_arr, callback) {
 		password
 	} = p_arr;
 
-	UserModel.findById(id, function (err, results) {
+	pool.getConnection(function (err, conn) {
 		if (err) {
+			if (conn) {
+				conn.release();
+			}
+
 			callback(err, null);
 			return;
 		}
+		console.log('데이터베이스 스레드 아이디 : ' + conn.threadId);
 
-		console.log('---------');
-		console.dir(results);
-		console.log('---------');
+		var columns = ['id', 'name', 'age'];
+		var tablename = 'users';
 
-		if (results.length > 0) {
-			console.log('아이디 찾음');
+		var exec = conn.query('select ?? from ?? where id=? and password=? ', [columns, tablename, id, password], function (err, rows) {
+			conn.release();
+			console.log('sql:' + exec.sql);
 
-			var user = new UserModel({
-				id: id
-			});
+			if (rows.length > 0) {
+				console.log('아이디 찾음');
 
-			var authenticated = user.authenticate(password, results[0]._doc.salt, results[0]._doc.hashed_password);
-
-			if (authenticated) {
-				console.log('비밀번호 찾음');
-				callback(null, results);
+				callback(null, rows);
 			} else {
-				console.log('비밀번호 XXXXXXXX');
+				console.log('XXXXXXXXX');
 				callback(null, null);
 			}
-		} else {
-			console.log('XXXXXXXXX');
-			callback(null, null);
-		}
+		})
+
 	})
 }
 
+/*---------------------------------------------------------------------------------*/
+/*------------------------------------- route -------------------------------------------- */
+/*---------------------------------------------------------------------------------*/
 router.route('/process/adduser').post(function (req, res) {
 	// 회원가입
 	console.log('/process/adduser');
 
 	var p_id = req.body.id || req.query.id;
-	var p_pw = req.body.password || req.query.password;
 	var p_name = req.body.name || req.query.name;
+	var p_age = req.body.age || req.query.age;
+	var p_pw = req.body.password || req.query.password;
 
 	var p_arr = {
 		'id': p_id,
-		'password': p_pw,
-		'name': p_name
+		'name': p_name,
+		'age': p_age,
+		'password': p_pw
 	}
 
-	if (database) {
+	if (pool) {
 		// addUser(database, p_id, p_pw, p_name, function (err, result) {
-		addUser(database, p_arr, function (err, result) {
-			if (err) throw err;
+		addUser(p_arr, function (err, result) {
+			if (err) {
+				console.error('추가중 오류' + err.stack);
+
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
+				res.write('<br>실패 ');
+				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+				res.end();
+
+				return;
+			};
 
 			if (result) {
 				console.log(result);
+
+				var isertId = result.insertId;
 
 				res.writeHead(200, {
 					'Content-Type': 'text/html; charset=utf8'
 				});
 				res.write('<br>추가 성공 ');
+				res.write('<br>ID : ' + isertId);
 				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
 				res.end();
 			} else {
@@ -350,7 +391,64 @@ router.route('/process/adduser').post(function (req, res) {
 		res.write('<br>DB 연결실패 ');
 		res.end();
 	}
-})
+});
+
+router.route('/process/login').post(function (req, res) {
+	console.log('/process/login');
+
+	var p_id = req.param('id');
+	var p_pw = req.param('password');
+
+	var p_arr = {
+		'id': p_id,
+		'password': p_pw
+	}
+
+	if (pool) {
+		authUser(p_arr, function (err, rows) {
+			if (err) {
+				console.error('추가중 오류' + err.stack);
+
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
+				res.write('<br>실패 ');
+				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+				res.end();
+
+				return;
+			};
+
+			if (rows) {
+				console.log(rows);
+
+				var username = rows[0].name;
+
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
+				res.write('<br>아이디 : ' + p_id);
+				res.write('<br>이름 : ' + username);
+				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+				res.end();
+			} else {
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
+				res.write('<br>실패 ');
+				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+				res.end();
+			}
+		})
+	} else {
+		res.writeHead(200, {
+			'Content-Type': 'text/html; charset=utf8'
+		});
+		res.write('<br>DB 연결실패 ');
+		res.end();
+	}
+});
+
 
 router.route('/process/listuser').post(function (req, res) {
 	console.log('/process/listuser');
@@ -401,57 +499,52 @@ router.route('/process/listuser').post(function (req, res) {
 		res.write('<br>DB 연결실패 ');
 		res.end();
 	}
-})
-
-router.route('/process/login').post(function (req, res) {
-	console.log('');
-	console.log('/process/login');
 });
 
 // 로그인
-app.post('/process/login', function (req, res) {
-	console.log('/process/login');
+// app.post('/process/login', function (req, res) {
+// 	console.log('/process/login');
 
-	var p_id = req.param('id');
-	var p_pw = req.param('password');
+// 	var p_id = req.param('id');
+// 	var p_pw = req.param('password');
 
-	var p_arr = {
-		'id': p_id,
-		'password': p_pw
-	}
+// 	var p_arr = {
+// 		'id': p_id,
+// 		'password': p_pw
+// 	}
 
-	if (database) {
-		authUser(database, p_arr, function (err, docs) {
-			if (err) throw err;
+// 	if (database) {
+// 		authUser(database, p_arr, function (err, docs) {
+// 			if (err) throw err;
 
-			if (docs) {
-				console.log(docs);
-				var username = docs[0].name;
+// 			if (docs) {
+// 				console.log(docs);
+// 				var username = docs[0].name;
 
-				res.writeHead(200, {
-					'Content-Type': 'text/html; charset=utf8'
-				});
-				res.write('<br>아이디 : ' + p_id);
-				res.write('<br>이름 : ' + username);
-				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
-				res.end();
-			} else {
-				res.writeHead(200, {
-					'Content-Type': 'text/html; charset=utf8'
-				});
-				res.write('<br>실패 ');
-				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
-				res.end();
-			}
-		})
-	} else {
-		res.writeHead(200, {
-			'Content-Type': 'text/html; charset=utf8'
-		});
-		res.write('<br>DB 연결실패 ');
-		res.end();
-	}
-})
+// 				res.writeHead(200, {
+// 					'Content-Type': 'text/html; charset=utf8'
+// 				});
+// 				res.write('<br>아이디 : ' + p_id);
+// 				res.write('<br>이름 : ' + username);
+// 				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+// 				res.end();
+// 			} else {
+// 				res.writeHead(200, {
+// 					'Content-Type': 'text/html; charset=utf8'
+// 				});
+// 				res.write('<br>실패 ');
+// 				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+// 				res.end();
+// 			}
+// 		})
+// 	} else {
+// 		res.writeHead(200, {
+// 			'Content-Type': 'text/html; charset=utf8'
+// 		});
+// 		res.write('<br>DB 연결실패 ');
+// 		res.end();
+// 	}
+// })
 
 
 app.use('/', router);
