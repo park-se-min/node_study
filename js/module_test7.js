@@ -39,4 +39,5 @@ User.prototype.value_update = function (p_arr) {
 	this.name = name;
 }
 
-module.exports = new User(p_arr);
+// module.exports = new User(p_arr);
+module.exports = User;
