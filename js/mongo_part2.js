@@ -9,6 +9,9 @@ var cookieParser = require('cookie-parser');
 var static = require('serve-static');
 // var errorHandler = require('errorHandler');
 
+// 몽고디비 모듈
+var config = require('./config');
+
 // 오류 핸들러
 var expressErrorHandler = require('express-error-handler');
 

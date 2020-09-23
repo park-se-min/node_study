@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<style>
+		#a {background-color: brown; width: 1000px; height:800px; }
+		#b {background-color: chartreuse; width:800px; height:600px; margin:auto;}
+		#c {background-color: coral; width:600px; height:400px; margin:auto;}
+		#d {background-color: darkblue; width:400px; height:200px; margin:auto;}
+	</style>
+	<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+	<script>
+		function init(){
+			$.ajax({
+				url: "/ajax/ex1_ajax1.html",
+				type: 'GET',
+				data: "page=1",
+				success: function(data){
+					$('#a').html(data);
+
+					$.ajax({
+						url: "/ajax/ex1_ajax2.html",
+						type: 'GET',
+						data: "page=1",
+						success: function(data){
+							$('#b').html(data);
+
+							$.ajax({
+								url: "/ajax/ex1_ajax3.html",
+								type: 'GET',
+								data: "page=1",
+								success: function(data){
+									$('#c').html(data);
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+
+		$( document ).ready(function() {
+			init();
+		});
+	</script>
+
+	<div id="a"></div>
+</body>
+</html>
