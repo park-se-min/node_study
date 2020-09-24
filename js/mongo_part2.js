@@ -52,7 +52,7 @@ var UserModel;
 var app = express();
 
 // 기본설정
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || config.server_port);
 
 // body-parser 사용 파싱
 app.use(bodyParser.urlencoded({
