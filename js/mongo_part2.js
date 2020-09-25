@@ -9,9 +9,6 @@ var cookieParser = require('cookie-parser');
 var static = require('serve-static');
 // var errorHandler = require('errorHandler');
 
-// 몽고디비 모듈
-var config = require('./config');
-
 // 오류 핸들러
 var expressErrorHandler = require('express-error-handler');
 
@@ -52,7 +49,7 @@ var UserModel;
 var app = express();
 
 // 기본설정
-app.set('port', process.env.PORT || config.server_port);
+app.set('port', process.env.PORT || 3000);
 
 // body-parser 사용 파싱
 app.use(bodyParser.urlencoded({
