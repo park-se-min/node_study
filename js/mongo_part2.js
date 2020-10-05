@@ -51,6 +51,10 @@ var app = express();
 // 기본설정
 app.set('port', process.env.PORT || 3000);
 
+app.set('views', path.join(__dirname, '../public/views'));
+app.set('view engine', 'ejs');
+
+
 // body-parser 사용 파싱
 app.use(bodyParser.urlencoded({
 	extended: false
@@ -251,6 +255,77 @@ router.route('/process/login').post(function (req, res) {
 				res.writeHead(200, {
 					'Content-Type': 'text/html; charset=utf8'
 				});
+				var content = {userid:p_id, username:username};
+				req.app.render('login_success', content, function(err, html){
+					if (err){
+						console.log('뷰 랜더링중 에러'+ err.stack);
+
+						res.writeHead(200, {
+							'Content-Type': 'text/html; charset=utf8'
+						});
+						res.write('<br>랜더링 실패 ');
+						res.write('<br>'+ err.stack);
+						res.end();
+
+						return;
+					}
+
+					res.end(html);
+				})
+			} else {
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
+				res.write('<br>실2패 ');
+				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+				res.end();
+			}
+		})
+	} else {
+		res.writeHead(200, {
+			'Content-Type': 'text/html; charset=utf8'
+		});
+		res.write('<br>DB 연결실패 ');
+		res.end();
+	}
+});
+
+/*
+router.route('/process/login').post(function (req, res) {
+	console.log('/process/login');
+
+	var p_id = req.param('id');
+	var p_pw = req.param('password');
+
+	var p_arr = {
+		'id': p_id,
+		'password': p_pw
+	}
+
+	if (database) {
+		user.authUser(p_arr, function (err, rows) {
+			if (err) {
+				console.error('추가중 오류' + err.stack);
+
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
+				res.write('<br>실패 ');
+				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
+				res.end();
+
+				return;
+			};
+
+			console.log(rows);
+
+			if (rows) {
+
+				var username = rows[0].name;
+
+				res.writeHead(200, {
+					'Content-Type': 'text/html; charset=utf8'
+				});
 				res.write('<br>아이디 : ' + p_id);
 				res.write('<br>이름 : ' + username);
 				res.write('<br>다시 로그인하기 : <a href="/login_mongo.html">gogo</a>');
@@ -272,7 +347,7 @@ router.route('/process/login').post(function (req, res) {
 		res.end();
 	}
 });
-
+ */
 
 router.route('/process/listuser').post(function (req, res) {
 	console.log('/process/listuser');

@@ -1,2 +1,4 @@
 ## 용량이 커서 mongo DB는 update 안함.
 mongo
+node_modules
+semantic
