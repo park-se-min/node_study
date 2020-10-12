@@ -79,6 +79,15 @@ app.use(expressSession({
 // 라우터 객체 참조
 var router = express.Router();
 
+// passport
+var passport = require('passport');
+var flash = require('connect-flash');
+
+app.use(passport.initialize);
+app.use(passport.session());
+app.use(flash());
+
+
 // DB 커넥트
 function connectDB() {
 	var databaseUrl = 'mongodb://localhost:27017/local';
@@ -158,6 +167,48 @@ function findAll() {
 /*---------------------------------------------------------------------------------*/
 /*------------------------------------- route -------------------------------------------- */
 /*---------------------------------------------------------------------------------*/
+// router.route('/login').post(passport.authenticate('local'), function(req, res){
+// 	res.redirect('/users/'+ req.user.username);
+// })
+// router.route('/login').post(passport.authenticate('local'), {
+// 	successRedirect:'/',
+// 	failureRedirect:'/login'
+// })
+
+var s = mongoose.Schema({
+	email:{type:String, 'default':''},
+	hashed_password:{type:String, required:true, 'default':''},
+	name:{type:String, index:'hased', 'default':''},
+	salt:{type:String, required:true},
+	created_at:{type:Date, index:{unique:false}, 'default':Date.now},
+	updated_at:{type:Date, index:{unique:false}, 'default':Date.now}
+});
+
+router.route('/view_test').get(function (req, res) {
+	res.writeHead(200, {
+		'Content-Type': 'text/html; charset=utf8'
+	});
+
+	var content = {title:"테스트"};
+
+	req.app.render('adduser', content, function(err, html){
+		if (err){
+			console.log('뷰 랜더링중 에러'+ err.stack);
+
+			res.writeHead(200, {
+				'Content-Type': 'text/html; charset=utf8'
+			});
+			res.write('<br>랜더링 실패 ');
+			res.write('<br>'+ err.stack);
+			res.end();
+
+			return;
+		}
+
+		res.end(html);
+	})
+})
+
 router.route('/process/adduser').post(function (req, res) {
 	// 회원가입
 	console.log('/process/adduser');
