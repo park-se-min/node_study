@@ -1,20 +1,22 @@
-function add(a, b, callback) {
-	var r = a + b;
-	callback(r);
+var express = require('express');
+var http = require('http');
+var fs = require('fs');
 
-	var c = 0
-	var hi = function(){
-		c++;
-		return c +':'+ a + '+' + b + '=' + r;
-	};
-	return hi;
-}
+var app = express();
 
-var add_hi = add(5, 10, function(rr){
-	console.log(rr);
+app.set('port', 8080);
+
+http.createServer(app).listen(8080, function(){
+	console.log(1);
 })
 
-add_hi();
-console.log('aaa:'+ add_hi());
-console.log('aaa:'+ add_hi());
-console.log('aaa:'+ add_hi());
+// var server = http.createServer();
+
+// var port = 8080;
+
+// server.listen(port)
+
+// server.on('request', function(req, res){
+// 	res.write('test');
+// 	res.end();
+// })
